@@ -7,6 +7,7 @@ package frc.robot.enums;
 /** Add your docs here. */
 public enum HingePosition {
     Retracted,
+    HighGoal,
     Straight,
     Floor
 }

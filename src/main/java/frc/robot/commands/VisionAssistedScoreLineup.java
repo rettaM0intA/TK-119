@@ -6,16 +6,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
+import frc.robot.enums.CameraMode;
 
-public class VisionAssistedItemPlacement extends CommandBase {
+public class VisionAssistedScoreLineup extends CommandBase {
 
   int rightDistanceCounter = 0;
 
   /** Creates a new VisionAssistedItemPlacement. */
-  public VisionAssistedItemPlacement() {
+  public VisionAssistedScoreLineup() {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(RobotContainer.driveline);
     addRequirements(RobotContainer.camera);
+
+    RobotContainer.camera.CameraMode(CameraMode.aprilTag);
 
     rightDistanceCounter = 0;
   }
@@ -25,7 +28,7 @@ public class VisionAssistedItemPlacement extends CommandBase {
   public void initialize() {
     rightDistanceCounter = 0;
 
-    RobotContainer.camera.CameraMode(true);
+    RobotContainer.camera.CameraMode(CameraMode.aprilTag);
     
     RobotContainer.driveline.straightenSteerMotors();
   }
@@ -33,21 +36,44 @@ public class VisionAssistedItemPlacement extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(RobotContainer.camera.TargetLocated() && RobotContainer.camera.tx.getDouble(500) > -3 && RobotContainer.camera.tx.getDouble(500) < 3){
-      RobotContainer.driveline.drive(0, .2, 0, false);
-      if(RobotContainer.camera.ta.getDouble(-500) > 2.2){
+
+    double horizontal = 0;
+    double rotate = 0;
+    
+    horizontal = (RobotContainer.camera.tx.getDouble(0) + 4) * .02;
+
+    if(horizontal > .05)
+      horizontal = .05;
+    else if(horizontal < -.05)
+      horizontal = -.05;
+
+    if(Math.abs(RobotContainer.driveline.getRobotAngle()) > 2)
+      rotate = RobotContainer.driveline.getRobotAngle() * .02;
+
+    if(rotate > .05)
+      rotate = .05;
+    else if(rotate < -.05)
+      rotate = -.05;
+
+    if(RobotContainer.camera.TargetLocated() && 
+    RobotContainer.camera.tx.getDouble(-500) > -4 && 
+    RobotContainer.camera.tx.getDouble(500) < -2 && 
+    Math.abs(RobotContainer.driveline.getRobotAngle()) < 2){
+
         RobotContainer.driveline.drive(0, 0, 0, false);
-        rightDistanceCounter += 4;
-      }
+        rightDistanceCounter += 1;
 
     }else if(RobotContainer.camera.TargetLocated()){
-      if(RobotContainer.camera.tx.getDouble(0) > 3){
-        RobotContainer.driveline.drive(0, 0, .2, false);
-      }else if(RobotContainer.camera.tx.getDouble(0.0) < -3){
-        RobotContainer.driveline.drive(0, 0, -.2, false);
-      }
+
+      RobotContainer.driveline.drive(horizontal, 0, rotate, false);
+
+      // if(RobotContainer.camera.tx.getDouble(-500) > 3){
+      //   RobotContainer.driveline.drive(0.15, 0, 0, false);
+      // }else if(RobotContainer.camera.tx.getDouble(500) < -3){
+      //   RobotContainer.driveline.drive(-.15, 0, -.0, false);
+      // }
     }else{
-      RobotContainer.driveline.drive(0, 0, .1, false);
+      RobotContainer.driveline.drive(0, 0, rotate, false);
     }
 
   }

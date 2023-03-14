@@ -14,9 +14,12 @@ import frc.robot.enums.HingePosition;
 public class HingeDefaultCommand extends CommandBase {
 
   boolean hold = false;
-  int speedUpTick = 0;
-  HingePosition previouPosition = HingePosition.Retracted;
-  PIDController pid = new PIDController(0.0000087, 0.00000025, 0);
+  int speedUpTick = 20;
+
+  HingePosition previousPosition = HingePosition.Retracted;
+  
+  PIDController pid = new PIDController(0.0000125, 0.00000025, 0);
+
   /** Creates a new HingeDefaultCommand. */
   public HingeDefaultCommand() {
     
@@ -32,36 +35,42 @@ public class HingeDefaultCommand extends CommandBase {
   @Override
   public void execute() {
 
-
-    // if(RobotContainer.hingePos != previouPosition){
-    //   hold = false;
-    // }
-
-    // if(RobotContainer.hinge.Pivot(RobotContainer.hingePos, hold)){
-    //   hold = true;
-    // }
-
-    // previouPosition = RobotContainer.hingePos;
-
-    if(RobotContainer.driver.getAButton()){
+    if((previousPosition == HingePosition.Floor && RobotContainer.hingePos == HingePosition.Straight) ||
+    (previousPosition != RobotContainer.hingePos && RobotContainer.hingePos == HingePosition.Retracted)){
       speedUpTick = 0;
-      if(RobotContainer.hinge.Pivot(HingePosition.Straight, false)){
-        hold = true;
-      }
-      if(speedUpTick == 0){
-        pid = new PIDController(0.0000087, 0.00000025, 0);
-      }
-      speedUpTick++;
-    }else if(RobotContainer.driver.getBButton()){
-      var d = pid.calculate(RobotContainer.hinge.hingeMotor.getSelectedSensorPosition(), 3000);
+    }
+    previousPosition = RobotContainer.hingePos;
 
-      RobotContainer.hinge.Pivot(d);
+    if(RobotContainer.hingePos == HingePosition.Retracted){
+      if(speedUpTick < 2){
+
+        RobotContainer.hinge.Pivot(-.4);
+        speedUpTick++;
+
+      }else{
+        var d = pid.calculate(RobotContainer.hinge.hingeMotor.getSelectedSensorPosition(), 2000);
+        
+        RobotContainer.hinge.Pivot(d);
+        
+      }
+      
 
       hold = false;
     }else{
-      RobotContainer.hinge.Pivot(0);
-      hold = false;
+
+      // if(speedUpTick < 10 && RobotContainer.hingePos == HingePosition.Straight){
+      //   RobotContainer.hinge.Pivot(-.4);
+      //   speedUpTick++;
+      // }else
+       if(RobotContainer.hinge.Pivot(RobotContainer.hingePos, hold)){
+        hold = true;
+      }
+
+      //Reset the pid for retracting. Yes, this does something
+      pid = new PIDController(0.0000125, 0.00000025, 0);
     }
+
+      // RobotContainer.hinge.Pivot(RobotContainer.driver.getRightTriggerAxis() - RobotContainer.driver.getLeftTriggerAxis());
 
   }
 

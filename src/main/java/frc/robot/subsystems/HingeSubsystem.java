@@ -12,22 +12,24 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.enums.HingePosition;
 
 public class HingeSubsystem extends SubsystemBase {
 
   public WPI_TalonFX hingeMotor = new WPI_TalonFX(16);
 
-  private int currentPid = 0;
+  private int currentPid = 1;
   
-  private final double hingeOutLimit = 51000;
-  private final double hingeOutChangePoint = 40000;
-
-  private final double hingeFloorLimit = 60000; //62000
-
-  private final double hingeInStartGoal = 6000;
   private final double hingeInChangePoint = 10000;
   private final double hingeInLimit = 1000;
+
+  private final double hingeHighGoal = 45000;
+  
+  private final double hingeOutLimit = 55000;
+  private final double hingeOutChangePoint = 40000;
+
+  private final double hingeFloorLimit = 62000;
 
   /** Creates a new Hinge. */
   public HingeSubsystem() {
@@ -37,6 +39,7 @@ public class HingeSubsystem extends SubsystemBase {
     hingeMotor.setSelectedSensorPosition(0);
 
     Pid(0);
+    Pivot(0);
 
   }
 
@@ -54,6 +57,21 @@ public class HingeSubsystem extends SubsystemBase {
       if(goalPosition == HingePosition.Floor){
         Pid(1);
         hingeMotor.set(TalonFXControlMode.Position, hingeFloorLimit);
+        return true;
+      }
+      if(goalPosition == HingePosition.HighGoal){
+        Pid(1);
+        hingeMotor.set(TalonFXControlMode.Position, hingeHighGoal);
+        return true;
+      }
+    }
+
+    if(goalPosition == HingePosition.HighGoal){
+      if(hingeMotor.getSelectedSensorPosition() <= hingeHighGoal - 500){
+        Pid(0);
+        hingeMotor.set(TalonFXControlMode.Position, hingeHighGoal);
+      }else{
+        hold = true;
       }
     }
     
@@ -62,36 +80,26 @@ public class HingeSubsystem extends SubsystemBase {
         Pid(0);
         hingeMotor.set(TalonFXControlMode.Position, hingeOutLimit);
 
-      }else if(hingeMotor.getSelectedSensorPosition() <= hingeOutLimit){
-        Pid(2);
-        hingeMotor.set(TalonFXControlMode.Position, hingeOutLimit);
+      }else if(goalPosition == HingePosition.Straight){
+          
+        if(hingeMotor.getSelectedSensorPosition() <= hingeOutLimit - 1200){
+            Pid(2);
+            hingeMotor.set(TalonFXControlMode.Position, hingeOutLimit);
 
+        }else{
+          hold = true;
+        }
       }else if(goalPosition == HingePosition.Floor){
 
-        Pid(0);
-        hingeMotor.set(TalonFXControlMode.Position, hingeFloorLimit);
+        if(hingeMotor.getSelectedSensorPosition() <= hingeFloorLimit){
 
-      }else{
-        hold = true;
+          Pid(2);
+          hingeMotor.set(TalonFXControlMode.Position, hingeFloorLimit);
+          
+        }else
+          hold = true;
       }
 
-    }else if(goalPosition == HingePosition.Retracted){
-      if(hingeMotor.getSelectedSensorPosition() >= hingeInChangePoint){
-
-        Pid(3);
-        hingeMotor.set(TalonFXControlMode.Position, hingeInStartGoal);
-
-      }else if(hingeMotor.getSelectedSensorPosition() >= hingeInLimit){
-        
-        Pid(4);
-        hingeMotor.set(TalonFXControlMode.Position, hingeInLimit);
-
-      }else{
-        hingeMotor.set(TalonFXControlMode.PercentOutput, -0.033);
-      }
-
-    }else if(goalPosition == HingePosition.Floor){
-      //TODO: Make this
     }
 
     return hold;
@@ -100,20 +108,20 @@ public class HingeSubsystem extends SubsystemBase {
   public void Pivot(double speed){
     double rtn = speed;
     
-    if(rtn > .45){
-      rtn = .45;
-    }else if(rtn < -.45)
-    rtn = -.45;
+    if(rtn > .4){
+      rtn = .4;
+    }else if(rtn < -.7)
+    rtn = -.7;
 
     if(rtn < 0 && hingeMotor.getSelectedSensorPosition() >= hingeInLimit){
       hingeMotor.set(TalonFXControlMode.PercentOutput, rtn);
-    }else if(rtn > 0 && hingeMotor.getSelectedSensorPosition() <= hingeOutLimit){
+    }else if(rtn > 0 && hingeMotor.getSelectedSensorPosition() <= hingeFloorLimit){
       hingeMotor.set(TalonFXControlMode.PercentOutput, rtn);
     }else{
       hingeMotor.set(TalonFXControlMode.PercentOutput, 0);
     }
 
-    SmartDashboard.putNumber("RTN", rtn);
+    // SmartDashboard.putNumber("RTN", rtn);
 
   }
 
@@ -135,12 +143,12 @@ public class HingeSubsystem extends SubsystemBase {
     
     if(pidType == 0 && currentPid != 0){
       //Pull out start
-      hingeMotor.config_kP(0, 0.0053);
+      hingeMotor.config_kP(0, 0.0145);
       hingeMotor.config_kI(0, 0);
       hingeMotor.config_kD(0, 0);
       hingeMotor.config_kF(0, 0);
 
-      hingeMotor.configPeakOutputForward(.7);
+      hingeMotor.configPeakOutputForward(.9);
 
       currentPid = 0;
       return;
@@ -150,17 +158,18 @@ public class HingeSubsystem extends SubsystemBase {
       hingeMotor.config_kP(0, 0.06);
       hingeMotor.config_kI(0, 0);
       hingeMotor.config_kD(0, 0);
-      hingeMotor.config_kF(0, -0.00003);
+      hingeMotor.config_kF(0, -0.00006);
 
       currentPid = 1;
       return;
     }
     if(pidType == 2 && currentPid != 2){
       //Pull out second phase
-      hingeMotor.config_kP(0, 0.0115);
+      hingeMotor.config_kP(0, 0.017);
       hingeMotor.config_kI(0, 0);
       hingeMotor.config_kD(0, 0);
-      hingeMotor.config_kF(0, 0);
+      hingeMotor.config_kF(0, -0.00002);
+      
 
       currentPid = 2;
       return;
@@ -198,10 +207,29 @@ public class HingeSubsystem extends SubsystemBase {
     }
   }
 
+  public boolean goalReached() {
+    switch (RobotContainer.hingePos){
+      case Retracted:
+        return hingeMotor.getSelectedSensorPosition() <= 2000;
+      case HighGoal:
+        return hingeMotor.getSelectedSensorPosition() >= hingeHighGoal - 800;
+      case Straight:
+        return hingeMotor.getSelectedSensorPosition() >= hingeOutLimit - 1200;
+      case Floor:
+        return hingeMotor.getSelectedSensorPosition() >= hingeFloorLimit;
+      default:
+        return false;
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Hinge position", hingeMotor.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Hinge Output", hingeMotor.getMotorOutputPercent());
+    // SmartDashboard.putNumber("Hinge position", hingeMotor.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Hinge Output", hingeMotor.getMotorOutputPercent());
+    // SmartDashboard.putBoolean("Elevator goal reached", RobotContainer.elevator.goalReached());
+    // SmartDashboard.putBoolean("Extender goal reached", RobotContainer.extender.goalReached());
+    // SmartDashboard.putBoolean("Hinge goal reached", RobotContainer.hinge.goalReached());
   }
+
 }

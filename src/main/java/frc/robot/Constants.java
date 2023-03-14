@@ -95,13 +95,12 @@ public final class Constants {
         public static final double kSteerEncoderCountsPerRev = 4096.0;
         public static final double kSteerCountsPerRadian = kSteerEncoderCountsPerRev / 2 * Math.PI;
 
-        //REAL absolute offsets
-        public static final double kLFAbsoluteOffsetInDegrees = 71.2;
-        public static final double kLBAbsoluteOffsetInDegrees = 143.1;
-        public static final double kRFAbsoluteOffsetInDegrees = 162.3;
-        public static final double kRBAbsoluteOffsetInDegrees = 114.9;
+        // REAL absolute offsets
+        public static final double kLFAbsoluteOffsetInDegrees = 290.6; // 285.6 - 288.1 It might be better if these were in motor counts. We know the conversion factor.
+        public static final double kLBAbsoluteOffsetInDegrees = 226.4; // 226.4 - 229.5 (reported zero)
+        public static final double kRFAbsoluteOffsetInDegrees = 328.0; // 328.0 - 327.7
+        public static final double kRBAbsoluteOffsetInDegrees = 246.8; // 232.8 - 239.8
     }
-
 
 	public static final double kDirectionalDeadzone = 0.02;
     public static final double kFwd_MetersPerSecPerNom = 1;

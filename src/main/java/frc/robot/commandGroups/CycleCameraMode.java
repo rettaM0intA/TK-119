@@ -5,16 +5,16 @@
 package frc.robot.commandGroups;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.CycleCameraModeCommand;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class TestCommand extends SequentialCommandGroup {
-  /**
-   * Creates a new TestCommand. This is meant to test commands for Autonomous
-   * mode. Do not use this as an actual CommandGroup for competition.
-   */
-  public TestCommand() {
-
+public class CycleCameraMode extends SequentialCommandGroup {
+  /** Creates a new CycleCameraMode. */
+  public CycleCameraMode() {
+    // Add your commands in the addCommands() call, e.g.
+    // addCommands(new FooCommand(), new BarCommand());
+    addCommands(new CycleCameraModeCommand());
   }
 }

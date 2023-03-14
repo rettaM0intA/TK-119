@@ -4,43 +4,47 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.RobotContainer;
-import frc.robot.enums.ExtenderPosition;
 
-public class ExtenderDefaultCommand extends CommandBase {
-  /** Creates a new ElavatorHorizontalDefaultCommand. */
-  public ExtenderDefaultCommand() {
+public class WaitCommand extends CommandBase {
+
+  Timer timer;
+  double time;
+
+  /** Creates a new WaitCommand. */
+  public WaitCommand(double _time) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(RobotContainer.extender);
+
+    time = _time;
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    timer = new Timer();
+    timer.start();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    if(RobotContainer.extendPos == ExtenderPosition.Extended){
-      RobotContainer.extender.Extend(true);
-
-    }else if(RobotContainer.extendPos == ExtenderPosition.Retracted){
-      RobotContainer.extender.Extend(false);
-      
-    }else{
-      RobotContainer.extender.Hold();
-    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    boolean rtn = false;
+    if (timer.hasElapsed(time)) {
+      rtn = true;
+    }
+    // SmartDashboard.putBoolean("Wait Command Has Ended", rtn);
+    return rtn;
   }
 }

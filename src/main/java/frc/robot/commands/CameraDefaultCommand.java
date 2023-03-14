@@ -11,13 +11,13 @@ public class CameraDefaultCommand extends CommandBase {
   /** Creates a new CameraDefaultCommand. */
   public CameraDefaultCommand() {
     // Use addRequirements() here to declare subsystem dependencies.\
-    addRequirements(RobotContainer.camera);
+    addRequirements(RobotContainer.camera); // uncomment for Limelight
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    RobotContainer.camera.CameraMode(true);
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

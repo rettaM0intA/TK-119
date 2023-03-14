@@ -54,12 +54,18 @@ public class DrivelineDefaultCommand extends CommandBase {
     y =  Util.deadband(y, OI.kDeadband);//(Math.abs(y) > OI.kDeadband) ? y - OI.kDeadband : 0;
     twist = Util.deadband(twist, OI.kDeadband);// (Math.abs(twist) > OI.kDeadband) ? twist - OI.kDeadband : 0;
 
-    RobotContainer.driveline.drive(x, y, twist, RobotContainer.driveline.getFieldOrientedModeActive());
-
-    if(RobotContainer.driver.getYButtonPressed()){
-      RobotContainer.driveline.straightenSteerMotors();
+    if(RobotContainer.driveline.getFieldOrientedModeActive()){
+      RobotContainer.driveline.drive(x, y, twist, 180);
+    }else{
+      RobotContainer.driveline.drive(x, y, twist, false);
     }
-    // // }
+
+    
+
+    // if(RobotContainer.driver.getYButtonPressed()){
+    //   RobotContainer.driveline.straightenSteerMotors();
+    // }
+
   }
 
   // Called once the command ends or is interrupted.

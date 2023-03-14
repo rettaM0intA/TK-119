@@ -5,9 +5,8 @@
 package frc.robot.enums;
 
 /** Add your docs here. */
-public enum ElevatorPosition {
-    Floor,
-    Mid,
-    Shelf,
-    Top
+public enum ClawWheelDirection {
+    in,
+    out,
+    stop
 }

@@ -10,6 +10,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.enums.ExtenderPosition;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
@@ -26,7 +28,9 @@ public class ExtenderSubsystem extends SubsystemBase {
 
   private boolean goingOut = false;
   private boolean goingIn = false;
+
   private int powerFactor = 0;
+  private int initialPowerFacter = 45;
 
   private double inDivisor = 90;
   private double outDivisor = 90;
@@ -76,7 +80,7 @@ public class ExtenderSubsystem extends SubsystemBase {
       }else if(getPositions() < outSecondChangePoint){
         if(powerFactor > outDivisor / 2){
 
-          powerFactor -= 3;
+          powerFactor -= 6;
           leftExtender.set(TalonFXControlMode.PercentOutput, 0.21 * powerFactor / outDivisor);
           rightExtender.set(TalonFXControlMode.PercentOutput, 0.21 * powerFactor / outDivisor);
         }else{
@@ -93,7 +97,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     if(!outOrIn){
       goingIn = false;
       if(!goingOut){
-        powerFactor = 0;
+        powerFactor = initialPowerFacter;
         goingOut = true;
       }
       if(getPositions() >= inChangePoint){
@@ -153,14 +157,37 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
   }
 
+  public boolean AtDestination(){
+    if(RobotContainer.extendPos == ExtenderPosition.Extended && getPositions() > outChangePoint){
+      return true;
+    }
+
+    if(RobotContainer.extendPos == ExtenderPosition.Retracted && getPositions() < inSecondChangePoint){
+      return true;
+    }
+
+    return false;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("leftExtenderPos", leftExtender.getSelectedSensorPosition());
-    SmartDashboard.putNumber("rightExtenderPos", rightExtender.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("leftExtenderPos", leftExtender.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("rightExtenderPos", rightExtender.getSelectedSensorPosition());
 
     
-    SmartDashboard.putNumber("leftExtender Output", leftExtender.getMotorOutputPercent());
-    SmartDashboard.putNumber("rightExtender Output", rightExtender.getMotorOutputPercent());
+    // SmartDashboard.putNumber("leftExtender Output", leftExtender.getMotorOutputPercent());
+    // SmartDashboard.putNumber("rightExtender Output", rightExtender.getMotorOutputPercent());
+  }
+
+  public boolean goalReached() {
+      switch (RobotContainer.extendPos){
+        case Extended:
+          return getPositions() >= outLimit - 1000;
+        case Retracted:
+          return getPositions() <= inLimit + 1000;
+        default:
+          return false;
+      }
   }
 }

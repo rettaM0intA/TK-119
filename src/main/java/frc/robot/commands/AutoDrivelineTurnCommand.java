@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 
-public class AutoSpin extends CommandBase {
+public class AutoDrivelineTurnCommand extends CommandBase {
 
   boolean isFinished = false;
   boolean isRight = false;
@@ -19,7 +19,10 @@ public class AutoSpin extends CommandBase {
   int buffer = 0;
 
   /** Creates a new AutoSpin. */
-  public AutoSpin(double m_goalDegree, double m_speed, boolean m_isRight) {
+  /**
+   * This command is obsolete.
+   */
+  public AutoDrivelineTurnCommand(double m_goalDegree, double m_speed, boolean m_isRight) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(RobotContainer.driveline);
     

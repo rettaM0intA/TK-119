@@ -6,23 +6,23 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.RobotContainer;
+import frc.robot.enums.CameraMode;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class ClawHingeCommand extends InstantCommand {
-  public ClawHingeCommand() {
+public class ToggleCameraModeCommand extends InstantCommand {
+  CameraMode cameraMode;
+
+  public ToggleCameraModeCommand(CameraMode _cameraMode) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(RobotContainer.claw);
+    addRequirements(RobotContainer.camera);
+    cameraMode = _cameraMode;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
-    RobotContainer.clawClosed = !RobotContainer.clawClosed;
-    RobotContainer.claw.Hinge(RobotContainer.clawClosed);
-    RobotContainer.claw.incrementClawMovements();
-    
+    RobotContainer.camera.CameraMode(cameraMode);
   }
 }
