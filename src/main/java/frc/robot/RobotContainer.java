@@ -42,7 +42,7 @@ import frc.robot.subsystems.HingeSubsystem;
  */
 public class RobotContainer {
 
-  ActiveMode activeMode = ActiveMode.test;
+  public static boolean intakeFastMode = false;
 
   // // The robot's subsystems and commands are defined here...
   // public static chassisSubsystem m_chassisSubsystem = new chassisSubsystem();

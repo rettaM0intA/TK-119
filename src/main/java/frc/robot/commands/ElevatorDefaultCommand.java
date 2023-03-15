@@ -22,6 +22,8 @@ public class ElevatorDefaultCommand extends CommandBase {
   ElevatorPosition previousPostion = ElevatorPosition.Floor; 
   boolean hold = false;
 
+  int speedUp = 0;
+
   /** Creates a new ElevatorCommand. */
   public ElevatorDefaultCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -41,6 +43,12 @@ public class ElevatorDefaultCommand extends CommandBase {
   public void execute() {
 
     ElevatorPosition position = RobotContainer.elevatPos;
+
+    if(RobotContainer.intakeFastMode){
+      speedUp = 2000;
+    }else{
+      speedUp = 0;
+    }
 
     if(previousPostion != position){
       hold = false;
@@ -77,28 +85,28 @@ public class ElevatorDefaultCommand extends CommandBase {
       if(RobotContainer.elevator.HighChangePointReached())
         RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(60000));
       else
-        RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(105000));
+        RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(105000 + speedUp));
 
       if(RobotContainer.elevator.HighReached()){
         hold = true;
       }
 
     }else if(position == ElevatorPosition.Mid && !RobotContainer.elevator.TopLimitReached()){
-      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000));
+      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000 + speedUp));
 
       if(RobotContainer.elevator.MidReached()){
         hold = true;
       }
 
     }else if(position == ElevatorPosition.Shelf && !RobotContainer.elevator.TopLimitReached()){
-      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000));
+      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000 + speedUp));
       
       if(RobotContainer.elevator.ShelfReached()){
         hold = true;
       }
     
     }else if(position == ElevatorPosition.Floor && !RobotContainer.elevator.BottomLimitReached()){
-      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-82000));
+      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-82000 - (speedUp * 2)));
 
       if(RobotContainer.elevator.BottomLimitReached()){
         RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(0));

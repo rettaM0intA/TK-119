@@ -166,6 +166,7 @@ public class Robot extends TimedRobot {
     }
 
     RobotContainer.camera.CameraMode(CameraMode.off);
+    RobotContainer.intakeFastMode = false;
 
     // sub_c.initSteerWheelEncoders();
   }
@@ -174,6 +175,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    RobotContainer.intakeFastMode = false;
+    
     // sub_c.driveTeleop(driver.getLeftTriggerAxis(),driver.getLeftTriggerAxis(),
     // driver.getRightX());
 
