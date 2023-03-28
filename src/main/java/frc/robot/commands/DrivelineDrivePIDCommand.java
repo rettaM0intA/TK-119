@@ -20,6 +20,8 @@ public class DrivelineDrivePIDCommand extends PIDCommand {
   Timer timer;
   double inches;
   double time;
+  static double rotation;
+  static double startRotation;
 
   @Override
   public void initialize() {
@@ -27,19 +29,28 @@ public class DrivelineDrivePIDCommand extends PIDCommand {
     timer = new Timer();
     timer.start();
     RobotContainer.driveline.resetSwerveDriveEncoders();
+
+    startRotation = RobotContainer.driveline.getRobotAngle();
   }
 
   /**
-   * This is the main driving command used by the robot during the autonomous period.
-   * @param _inches distance in inches
-   * @param _angle angle to move at relative to the front of the robot (from -180 to 180)
-   * @param _time maximum duration of the command
+   * This is the main driving command used by the robot during the autonomous
+   * period.
+   * 
+   * @param _inches        distance in inches
+   * @param _angle         angle to move at relative to the front of the robot
+   *                       (from -180 to 180)
+   * @param _time          maximum duration of the command
    * @param _fieldOriented whether field-oriented mode is enabled
+   * @param _stayStraight  wether the robot should try to stay at the starting
+   *                       rotation or not.
    */
-  public DrivelineDrivePIDCommand(double _kp, double _inches, double _angle, double _time, boolean _fieldOriented) {
+  public DrivelineDrivePIDCommand(double _kp, double _inches, double _angle, double _time,
+      boolean _fieldOriented, boolean _stayStraight) {
     super(
         // The controller that the command will use
-        new PIDController(_kp, 0.0025, 0.0025), // kp: 0.015 for balancing (front and back end first), 0.004 for backup on bump side auton
+        new PIDController(_kp, 0.0025, 0.0025), // kp: 0.015 for balancing (front and back end first), 0.004 for backup
+                                                // on bump side auton
         // This should return the measurement
         () -> RobotContainer.driveline.getAverageDistanceInInches(),
         // This should return the setpoint (can also be a constant)
@@ -48,12 +59,33 @@ public class DrivelineDrivePIDCommand extends PIDCommand {
         output -> {
           // Use the output here
 
-          // if (_angle >= 0) {
+          if (_stayStraight) {
+
+            rotation = (RobotContainer.driveline.getRobotAngle() - startRotation) * 0.02;
+            if (Math.abs(rotation) > 0.1) {
+              switch ((int) Math.signum((int) RobotContainer.driveline.getRobotAngle())) {
+                case (1):
+                  rotation = .1;
+                  break;
+                default:
+                  rotation = -.1;
+                  break;
+              }
+            }
+
             RobotContainer.driveline.drive(Math.sin(_angle * Math.PI / 180) * output,
-            Math.cos(_angle * Math.PI / 180) * output, 0, _fieldOriented);
+                Math.cos(_angle * Math.PI / 180) * output, rotation, _fieldOriented);
+          } else {
+            RobotContainer.driveline.drive(Math.sin(_angle * Math.PI / 180) * output,
+                Math.cos(_angle * Math.PI / 180) * output, 0, _fieldOriented);
+
+          }
+
+          // if (_angle >= 0) {
           // } else if (_angle < 0) {
-          //   RobotContainer.driveline.drive(Math.sin(_angle * Math.PI / 180) * output,
-          //   Math.cos(_angle * Math.PI / 180) * output, 0, _fieldOriented); // goes down and to the right
+          // RobotContainer.driveline.drive(Math.sin(_angle * Math.PI / 180) * output,
+          // Math.cos(_angle * Math.PI / 180) * output, 0, _fieldOriented); // goes down
+          // and to the right
           // }
 
         });
@@ -64,7 +96,7 @@ public class DrivelineDrivePIDCommand extends PIDCommand {
     time = _time;
     this.m_controller.setIntegratorRange(-0.5, 0.5);
     this.m_controller.setTolerance(1, 10 / 0.02);
-    
+
   }
 
   // Returns true when the command should end.

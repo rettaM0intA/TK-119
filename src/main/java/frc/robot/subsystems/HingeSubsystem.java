@@ -82,7 +82,7 @@ public class HingeSubsystem extends SubsystemBase {
 
       }else if(goalPosition == HingePosition.Straight){
           
-        if(hingeMotor.getSelectedSensorPosition() <= hingeOutLimit - 1200){
+        if(hingeMotor.getSelectedSensorPosition() <= hingeOutLimit - 1350){
             Pid(2);
             hingeMotor.set(TalonFXControlMode.Position, hingeOutLimit);
 

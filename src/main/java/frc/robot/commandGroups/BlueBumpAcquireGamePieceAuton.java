@@ -39,13 +39,13 @@ public class BlueBumpAcquireGamePieceAuton extends SequentialCommandGroup {
         new IntakePositionsReachedCommand(3),
         new ClawHingeCommand(),
         new ResetSteerEncodersCommand(),
-        new ParallelCommandGroup(new DrivelineDrivePIDCommand(0.015, 0, 0, 0, false),
+        new ParallelCommandGroup(new DrivelineDrivePIDCommand(0.015, 0, 0, 0, false, true),
             new ChangeIntakePositionsCommand(1)));
 
     // Drives backwards, leaving the Community, and turns to face a cube
     addCommands(new IntakePositionsReachedCommand(3),
         // TODO: determine safe kp for this command
-        new DrivelineDrivePIDCommand(0.01, 156, 180, 5, true),
+        new DrivelineDrivePIDCommand(0.01, 156, 180, 5, true, true),
         new DrivelineTurnPIDCommand(-170, 3, true));
 
     // Adjusts with vision
@@ -57,7 +57,7 @@ public class BlueBumpAcquireGamePieceAuton extends SequentialCommandGroup {
     addCommands(new IntakePositionsReachedCommand(3),
         new ChangeClawWheelDirectionCommand(ClawWheelDirection.in),
         new ResetGyroCommand(),
-        new DrivelineDrivePIDCommand(0.015, 48, 0, 3, true),
+        new DrivelineDrivePIDCommand(0.015, 48, 0, 3, true, true),
         new ChangeClawWheelDirectionCommand(ClawWheelDirection.stop),
         new ChangeIntakePositionsCommand(1),
         new IntakePositionsReachedCommand(3));

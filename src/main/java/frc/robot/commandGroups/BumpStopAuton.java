@@ -12,6 +12,7 @@ import frc.robot.commands.ChangeClawWheelDirectionCommand;
 import frc.robot.commands.ChangeIntakePositionsCommand;
 import frc.robot.commands.ClawHingeCommand;
 import frc.robot.commands.DrivelineDrivePIDCommand;
+import frc.robot.commands.DrivelineDrivePIDCommand;
 import frc.robot.commands.DrivelineTurnPIDCommand;
 import frc.robot.commands.IntakePositionsReachedCommand;
 import frc.robot.commands.ResetGyroCommand;
@@ -37,14 +38,14 @@ public class BumpStopAuton extends SequentialCommandGroup {
                 new IntakePositionsReachedCommand(3),
                 new ClawHingeCommand(),
                 new ResetSteerEncodersCommand(),
-                new ParallelCommandGroup(new DrivelineDrivePIDCommand(0.015, 0, 0, 0, false),
+                new ParallelCommandGroup(new DrivelineDrivePIDCommand(0.015, 0, 0, 0, false, true),
                         new ChangeIntakePositionsCommand(1)));
 
         // Drives out across the bump, leaving the Community
         addCommands(new IntakePositionsReachedCommand(3),
-                new DrivelineDrivePIDCommand(0.004, 156, 180, 3, true));
+                new DrivelineDrivePIDCommand(0.004, 156, 180, 3, true, true));
 
         // Straightens TODO: check this, it might not work
-        addCommands(new DrivelineTurnPIDCommand(-RobotContainer.driveline.getRobotAngle(), 3, true));
+        // addCommands(new DrivelineTurnPIDCommand(0, 3, true));
     }
 }

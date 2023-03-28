@@ -12,18 +12,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commandGroups.BlueBumpAcquireGamePieceAuton;
+import frc.robot.commandGroups.BlueChargeStationStopAuton;
 import frc.robot.commandGroups.BlueNoBumpAcquireGamePieceAuton;
 import frc.robot.commandGroups.BumpStopAuton;
 import frc.robot.commandGroups.ChargeStationCrossLineAuton;
 import frc.robot.commandGroups.RedNoBumpAcquireGamePieceAuton;
 import frc.robot.commandGroups.SchoolBoardDemoAuton;
 import frc.robot.commandGroups.ScoreConeHighAuton;
-import frc.robot.commandGroups.ChargeStationStopAuton;
+import frc.robot.commandGroups.RedChargeStationStopAuton;
 import frc.robot.commandGroups.CycleCameraMode;
 import frc.robot.commandGroups.NoBumpStopAuton;
 import frc.robot.commandGroups.RedBumpAcquireGamePieceAuton;
-import frc.robot.commandGroups.TestAuton_1;
-import frc.robot.commandGroups.TestAuton_2;
+// import frc.robot.commandGroups.TestAuton_1;
+// import frc.robot.commandGroups.TestAuton_2;
 import frc.robot.commandGroups.TestAuton_3;
 import frc.robot.commandGroups.TestCommand;
 import frc.robot.commands.CycleCameraModeCommand;
@@ -82,22 +83,29 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Bump Emergency", new BumpStopAuton());
 
     // Autons
-    //Charge Station Center
-    m_chooser.addOption("Charge Station Stop", new ChargeStationStopAuton());
+    // Charge Station Center
+    m_chooser.addOption("Red Charge Station Stop", new RedChargeStationStopAuton());
+    m_chooser.addOption("Blue Charge Station Stop", new BlueChargeStationStopAuton());    
     m_chooser.addOption("Charge Station Cross Line", new ChargeStationCrossLineAuton());
 
-    //No bump side
+    // No bump side
     m_chooser.addOption("Red NO Bump Acquire Game Piece", new RedNoBumpAcquireGamePieceAuton());
     m_chooser.addOption("Blue NO Bump Acquire Game Piece", new BlueNoBumpAcquireGamePieceAuton());
 
-    //Bump side
+    // Bump side
     m_chooser.addOption("Red Bump Acquire Game Piece", new RedBumpAcquireGamePieceAuton());
     m_chooser.addOption("Blue Bump Acquire Game Piece", new BlueBumpAcquireGamePieceAuton());
 
-    //Other
-    // m_chooser.addOption("Score Cone", new ScoreConeHighAuton());
-    m_chooser.addOption("School Board Auton", new SchoolBoardDemoAuton());
+    // Other
+    // m_chooser.addOption("School Board Auton", new SchoolBoardDemoAuton());
     m_chooser.addOption("Cycle Camera Mode", new CycleCameraModeCommand());
+    // m_chooser.addOption("Score Cone High", new ScoreConeHighAuton());
+
+    // Tests
+    // m_chooser.addOption("Test Auton 1", new TestAuton_1());
+    // m_chooser.addOption("Test Auton 2", new TestAuton_2());
+    // m_chooser.addOption("Test Auton 3", new TestAuton_3());
+    m_chooser.addOption("Score Cone High", new ScoreConeHighAuton());
 
     SmartDashboard.putData("chooser", m_chooser);
   }
@@ -176,7 +184,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     RobotContainer.intakeFastMode = false;
-    
+
     // sub_c.driveTeleop(driver.getLeftTriggerAxis(),driver.getLeftTriggerAxis(),
     // driver.getRightX());
 

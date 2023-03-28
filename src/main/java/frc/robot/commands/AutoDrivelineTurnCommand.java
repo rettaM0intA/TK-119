@@ -30,7 +30,7 @@ public class AutoDrivelineTurnCommand extends CommandBase {
     isRight = m_isRight;
 
     
-    startDegree = RobotContainer.driveline.getGyro().getAngle();
+    startDegree = RobotContainer.driveline.getGyro().getYaw();
 
     if(isRight){
       goalDegree = m_goalDegree /*+ startDegree*/;
@@ -42,7 +42,7 @@ public class AutoDrivelineTurnCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    goalDegree = goalDegree + RobotContainer.driveline.getGyro().getAngle();
+    goalDegree = goalDegree + RobotContainer.driveline.getGyro().getYaw();
     buffer = 0;
 
     RobotContainer.driveline.drive(0, 0, 0, false);
@@ -58,7 +58,7 @@ public class AutoDrivelineTurnCommand extends CommandBase {
 
     buffer += 1;
 
-    currentDegree = RobotContainer.driveline.getGyro().getAngle();
+    currentDegree = RobotContainer.driveline.getGyro().getYaw();
 
     // if(goalDegree > 0){
     if(isRight){

@@ -328,4 +328,13 @@ public class SwerveModule {
     public void setOpenLoopRampRate(double openLoopRampRate) {
         m_driveMotor.configClosedloopRamp(openLoopRampRate);
     }
+
+    public void manualSetPID(double P, double I, double D, double F){
+
+        m_steerMotor.config_kP(0, P);
+        m_steerMotor.config_kI(0, I);
+        m_steerMotor.config_kD(0, D);
+        m_steerMotor.config_kF(0, F);
+
+    }
 }

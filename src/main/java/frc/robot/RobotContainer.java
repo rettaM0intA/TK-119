@@ -110,7 +110,7 @@ public class RobotContainer {
 
     // DrivelineFieldOrientedModeActive = new JoystickButton(driver, 6);
 
-    JoystickButton pneumaticsSwitch = new JoystickButton(driver, 2);
+    JoystickButton pneumaticsSwitch = new JoystickButton(driver, 1);
     pneumaticsSwitch.onTrue(new PneumaticSwitch());
     
     JoystickButton inDownRetractButton = new JoystickButton(operator, 1);

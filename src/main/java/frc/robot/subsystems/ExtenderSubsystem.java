@@ -23,7 +23,7 @@ public class ExtenderSubsystem extends SubsystemBase {
   private double outSecondChangePoint = 30000;
   private double outLimit = 32000;
   private double inChangePoint = 4000;
-  private double inSecondChangePoint = 500;
+  private double inSecondChangePoint = 700;
   private double inLimit = 100;
 
   private boolean goingOut = false;
@@ -34,6 +34,8 @@ public class ExtenderSubsystem extends SubsystemBase {
 
   private double inDivisor = 90;
   private double outDivisor = 90;
+
+  private double speedUp = 0;
 
   /** Creates a new ElavatorHorizontalSubsystem. */
   public ExtenderSubsystem() {
@@ -55,6 +57,12 @@ public class ExtenderSubsystem extends SubsystemBase {
    * @param outOrIn make true to send out the intake. Set false to pull it back in.
    */
   public void Extend(boolean outOrIn){
+
+    if(RobotContainer.intakeFastMode){
+      speedUp = 0.01; // .0
+    }else{
+      speedUp = 0;
+    }
     
     if(outOrIn){
       goingOut = false;
@@ -115,8 +123,8 @@ public class ExtenderSubsystem extends SubsystemBase {
 
       }else if(getPositions() > inSecondChangePoint){
         //keep the extender in the robot
-        leftExtender.set(TalonFXControlMode.PercentOutput, -.13);
-        rightExtender.set(TalonFXControlMode.PercentOutput, -.13);
+        leftExtender.set(TalonFXControlMode.PercentOutput, -.13 - speedUp);
+        rightExtender.set(TalonFXControlMode.PercentOutput, -.13 - speedUp);
       }else if(getPositions() > inLimit){
         //gently reach the limit
         leftExtender.set(TalonFXControlMode.PercentOutput, -.08);

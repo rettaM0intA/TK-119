@@ -35,7 +35,7 @@ public class SchoolBoardDemoAuton extends SequentialCommandGroup {
     addCommands(new IntakePositionsReachedCommand(3),
         new ChangeClawWheelDirectionCommand(ClawWheelDirection.in),
         new ResetGyroCommand(),
-        new DrivelineDrivePIDCommand(0.015, 48, 0, 3, true),
+        new DrivelineDrivePIDCommand(0.015, 48, 0, 3, true, true),
         new ChangeClawWheelDirectionCommand(ClawWheelDirection.stop),
         // Turns off the Limelight
         new ParallelCommandGroup(new ChangeIntakePositionsCommand(1), new ToggleCameraModeCommand(CameraMode.off)));

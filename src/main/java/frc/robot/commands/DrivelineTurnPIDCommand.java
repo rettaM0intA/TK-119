@@ -26,7 +26,6 @@ public class DrivelineTurnPIDCommand extends PIDCommand {
     super.initialize();
     timer = new Timer();
     timer.start();
-    RobotContainer.driveline.resetGyro();
     RobotContainer.driveline.resetSwerveDriveEncoders();
     RobotContainer.driveline.straightenSteerMotors();
     // SmartDashboard.putBoolean("Continuous Input Enabled", this.m_controller.isContinuousInputEnabled());

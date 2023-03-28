@@ -13,16 +13,18 @@ import frc.robot.enums.ElevatorPosition;
 import frc.robot.enums.HingePosition;
 
 public class ElevatorDefaultCommand extends CommandBase {
-  
+
   // PIDController pid = new PIDController(0.0, 0.0, 0);
 
-  // ProfiledPIDController pidController = new ProfiledPIDController(0, 0, 0, null);
+  // ProfiledPIDController pidController = new ProfiledPIDController(0, 0, 0,
+  // null);
   ElevatorFeedforward elevatorFeedforward = new ElevatorFeedforward(0.2, 1.12, 0.0000295);
 
-  ElevatorPosition previousPostion = ElevatorPosition.Floor; 
+  ElevatorPosition previousPostion = ElevatorPosition.Floor;
   boolean hold = false;
 
   int speedUp = 0;
+  int speedDown = 0;
 
   /** Creates a new ElevatorCommand. */
   public ElevatorDefaultCommand() {
@@ -33,7 +35,7 @@ public class ElevatorDefaultCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
+
     // elevatorFeedforward.maxAchievableVelocity(12, 0);
 
   }
@@ -44,76 +46,80 @@ public class ElevatorDefaultCommand extends CommandBase {
 
     ElevatorPosition position = RobotContainer.elevatPos;
 
-    if(RobotContainer.intakeFastMode){
-      speedUp = 2000;
-    }else{
+    if (RobotContainer.intakeFastMode) {
+      speedUp = 3250; // 2000
+      speedDown = 4000;
+    } else {
       speedUp = 0;
+      speedDown = 0;
     }
 
-    if(previousPostion != position){
+    if (previousPostion != position) {
       hold = false;
       previousPostion = position;
 
-      if(position == ElevatorPosition.Top){
+      if (position == ElevatorPosition.Top) {
         elevatorFeedforward = new ElevatorFeedforward(0.2, 1.12, 0.0000295);
-      }else{
+      } else {
         elevatorFeedforward = new ElevatorFeedforward(0.2, 1.12, 0.0000295);
       }
 
     }
 
-    //Check if the elevator needs to be held in position
-    if(hold){
-      if(!RobotContainer.elevator.TopLimitReached() && !RobotContainer.elevator.BottomLimitReached()){
-        
-          if(position == ElevatorPosition.Top){
-            RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(0));
-            
-          }else if(position != ElevatorPosition.Floor){
-            RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-1));
-            
-          }
+    // Check if the elevator needs to be held in position
+    if (hold) {
+      if (!RobotContainer.elevator.TopLimitReached() && !RobotContainer.elevator.BottomLimitReached()) {
+
+        if (position == ElevatorPosition.Top) {
+          RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(0));
+
+        } else if (position != ElevatorPosition.Floor) {
+          RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(0));
+
+        }
         return;
-      }else{
+      } else {
         RobotContainer.elevator.voltageMove(0);
         return;
       }
     }
-    
-    if(position == ElevatorPosition.Top && !RobotContainer.elevator.TopLimitReached()){
-      
-      if(RobotContainer.elevator.HighChangePointReached())
+
+    if (position == ElevatorPosition.Top && !RobotContainer.elevator.TopLimitReached()) {
+
+      if (RobotContainer.elevator.HighChangePointReached())
         RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(60000));
       else
         RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(105000 + speedUp));
 
-      if(RobotContainer.elevator.HighReached()){
+      if (RobotContainer.elevator.HighReached()) {
         hold = true;
       }
 
-    }else if(position == ElevatorPosition.Mid && !RobotContainer.elevator.TopLimitReached()){
+    } else if (position == ElevatorPosition.Mid && !RobotContainer.elevator.TopLimitReached()) {
       RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000 + speedUp));
 
-      if(RobotContainer.elevator.MidReached()){
+      if (RobotContainer.elevator.MidReached()) {
         hold = true;
       }
 
-    }else if(position == ElevatorPosition.Shelf && !RobotContainer.elevator.TopLimitReached()){
+    } else if (position == ElevatorPosition.Shelf && !RobotContainer.elevator.TopLimitReached()) {
       RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(98000 + speedUp));
+
+      if (RobotContainer.elevator.ShelfReached()) {
+        hold = true;
+      }
+
+    } else if (position == ElevatorPosition.Floor && !RobotContainer.elevator.BottomLimitReached()) {
       
-      if(RobotContainer.elevator.ShelfReached()){
-        hold = true;
-      }
-    
-    }else if(position == ElevatorPosition.Floor && !RobotContainer.elevator.BottomLimitReached()){
-      RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-82000 - (speedUp * 2)));
 
-      if(RobotContainer.elevator.BottomLimitReached()){
+      if (RobotContainer.elevator.IntermediaryLimitReached()) {
+        RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-41000));
+      } else if (RobotContainer.elevator.BottomLimitReached()) {
         RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(0));
-      }
+      } else RobotContainer.elevator.voltageMove(elevatorFeedforward.calculate(-82000 - speedDown));
 
 
-    }else{
+    } else {
       RobotContainer.elevator.Move(0);
     }
 
@@ -121,7 +127,8 @@ public class ElevatorDefaultCommand extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override

@@ -11,9 +11,9 @@ import frc.robot.RobotContainer;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class IntakeFastModeCommand extends InstantCommand {
-  public IntakeFastModeCommand(boolean Active) {
+  public IntakeFastModeCommand(boolean _active) {
     // Use addRequirements() here to declare subsystem dependencies.
-    RobotContainer.intakeFastMode = Active;
+    RobotContainer.intakeFastMode = _active;
   }
 
   // Called when the command is initially scheduled.

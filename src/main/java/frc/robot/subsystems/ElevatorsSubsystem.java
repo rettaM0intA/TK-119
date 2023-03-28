@@ -25,8 +25,9 @@ public class ElevatorsSubsystem extends SubsystemBase {
   private final double verticalLimit = 70000;
   private final double highGoalPosition = 69000;
   private final double highSlowdownPosition = 67000;
-  private final double shelfGoalPosition = 62000;
+  private final double shelfGoalPosition = 64000;
   private final double midGoalPosition = 58000;
+  private final double intermediaryLimit = 3000;
   private final double groundLimit = 2000;
 
   /** Creates a new ElevatorsSubsystem. */
@@ -116,6 +117,10 @@ public class ElevatorsSubsystem extends SubsystemBase {
 
   public boolean ShelfReached(){
     return VerticalLeft.getSelectedSensorPosition() >= shelfGoalPosition;
+  }
+
+  public boolean IntermediaryLimitReached(){
+    return VerticalLeft.getSelectedSensorPosition() <= intermediaryLimit;
   }
 
   public boolean BottomLimitReached(){

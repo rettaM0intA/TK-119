@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -37,9 +38,10 @@ public class Driveline extends SubsystemBase {
       CANIDS.kDriveline_RBSteerEnc, InvertType.InvertMotorOutput, InvertType.InvertMotorOutput,
       SWERVE.kRBAbsoluteOffsetInDegrees);
 
-  private final WPI_Pigeon2 m_gyro = new WPI_Pigeon2(3);
+  private final WPI_Pigeon2 m_pigeonGyro = new WPI_Pigeon2(3);
+    private final AHRS m_gyro = new AHRS(I2C.Port.kOnboard);
 
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DRIVE.kDriveKinematics, m_gyro.getRotation2d(),
+  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DRIVE.kDriveKinematics, m_pigeonGyro.getRotation2d(),
       new SwerveModulePosition[] {
           m_leftFront.getModulePosition(),
           m_rightFront.getModulePosition(),
@@ -52,8 +54,11 @@ public class Driveline extends SubsystemBase {
 
   /** Creates a new Driveline. */
   public Driveline() {
-    m_gyro.configFactoryDefault();
+    m_pigeonGyro.configFactoryDefault();
+    m_pigeonGyro.reset();
     m_gyro.reset();
+
+    m_rightFront.manualSetPID(0.107, 0, 0, 0);
   }
 
   public void straightenSteerMotors() {
@@ -63,20 +68,19 @@ public class Driveline extends SubsystemBase {
     m_rightBack.straightenSteerMotor();
   }
 
-  
-
   @Override
   public void periodic() {
 
-    // Update the robots position on the field. This is used for Autonomous.
+        // Update the robots position on the field. This is used for Autonomous.
     m_odometry.update(
-        m_gyro.getRotation2d(), new SwerveModulePosition[] {
+        m_pigeonGyro.getRotation2d(), new SwerveModulePosition[] {
             m_leftFront.getModulePosition(),
             m_leftBack.getModulePosition(),
             m_rightFront.getModulePosition(),
             m_rightBack.getModulePosition()
         });
 
+    SmartDashboard.putData(m_pigeonGyro);
     SmartDashboard.putData(m_gyro);
     // double dlc = (m_leftFront.getDriveCurrent()+ m_leftFront.getSteerCurrent() +
     // m_leftBack.getDriveCurrent()+ m_leftBack.getSteerCurrent() +
@@ -104,6 +108,11 @@ public class Driveline extends SubsystemBase {
     SmartDashboard.putNumber("Roll", getRobotRoll());
     SmartDashboard.putNumber("Angle", getRobotAngle());
 
+    SmartDashboard.putNumber("Angle2", -m_gyro.getAngle());
+    SmartDashboard.putNumber("Pitch2", -m_gyro.getRoll());
+    SmartDashboard.putNumber("Roll2", m_gyro.getPitch());
+
+
     SmartDashboard.putNumber("FR Absolute", m_rightFront.getAbsolutePosition());
   }
 
@@ -112,14 +121,14 @@ public class Driveline extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
-    m_odometry.resetPosition(m_gyro.getRotation2d(),
+    m_odometry.resetPosition(m_pigeonGyro.getRotation2d(),
         new SwerveModulePosition[] {
             m_leftFront.getModulePosition(),
             m_leftBack.getModulePosition(),
             m_rightFront.getModulePosition(),
             m_rightBack.getModulePosition() },
         pose);
-    m_gyro.getAngle();
+    m_pigeonGyro.getAngle();
   }
 
   /**
@@ -128,7 +137,8 @@ public class Driveline extends SubsystemBase {
    * Values are converted to needed swereve module rates
    *
    * @param _xSpeed        Speed of the robot in the x direction (sideways).
-   * @param _ySpeed        Speed of the robot in the y direction (forward and backward).
+   * @param _ySpeed        Speed of the robot in the y direction (forward and
+   *                       backward).
    * @param _rot           Angular rate of the robot.
    * @param _fieldRelative Whether the provided x and y speeds are relative to the
    *                       field.
@@ -145,7 +155,7 @@ public class Driveline extends SubsystemBase {
 
     // Calculate the swerve module states
     SwerveModuleState[] swerveModuleStates = DRIVE.kDriveKinematics.toSwerveModuleStates(_fieldRelative
-        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_gyro.getRotation2d())
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, m_pigeonGyro.getRotation2d())
         : new ChassisSpeeds(xSpeed, ySpeed, rot));
     // Normalize the wheel speeds
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DRIVE.kMaxSpeedMetersPerSecond);
@@ -205,7 +215,6 @@ public class Driveline extends SubsystemBase {
     m_rightFront.setOpenLoopRampRate(0.01);
     m_leftBack.setOpenLoopRampRate(0.01);
     m_rightBack.setOpenLoopRampRate(0.01);
-
 
     m_leftFront.setDesiredState(swerveModuleStates[0], false);
     m_rightFront.setDesiredState(swerveModuleStates[1], false);
@@ -278,20 +287,32 @@ public class Driveline extends SubsystemBase {
     return vel;
   }
 
+  // When using Pigeon 
   public double getRobotAngle() {
-    return -m_gyro.getAngle();
+    return -m_pigeonGyro.getAngle();
   }
+
+  // When using NavX
+  // public double getRobotAngle() {
+  //   return -m_gyro.getAngle();
+  // }
 
   public double getRobotRoll() {
-    return m_gyro.getPitch();
+    return m_pigeonGyro.getPitch();
   }
 
+  // When using Pigeon
   public double getRobotPitch() {
-    return -m_gyro.getRoll();
+    return -m_pigeonGyro.getRoll();
   }
+
+  // When using NavX
+  // public double getRobotPitch() {
+  //   return -m_gyro.getRoll();
+  //   }
 
   public void resetGyro() {
-    m_gyro.reset();
+    m_pigeonGyro.reset();
   }
 
   public void setFieldOrientedMode() {
@@ -304,36 +325,37 @@ public class Driveline extends SubsystemBase {
 
   public double getCompassHeading() {
 
-    return m_gyro.getCompassHeading();
+    return m_pigeonGyro.getCompassHeading();
   }
 
   public WPI_Pigeon2 getGyro() {
-    return m_gyro;
+    return m_pigeonGyro;
   }
 
   public void toggleFieldOrientedMode() {
     isFieldOrientedMode = !isFieldOrientedMode;
   }
 
-public void drive(double _xSpeed, double _ySpeed, double _rot, int RotationOffset) {
-  // Convert joystick values of +/- 1 to Meters/Sec and Rad/Sec
-  // Joystick Y/X axis are reveresed here. Joystick Y is pushing forward and back.
-  // The kinematics assumes X to be forward and back.
-  double xSpeed = _ySpeed * DRIVE.kMaxSpeedMetersPerSecond;
-  double ySpeed = -_xSpeed * DRIVE.kMaxSpeedMetersPerSecond;
-  double rot = -_rot * DRIVE.kMaxAngularRateRadPerSecond;
-  // rot = 0;
+  public void drive(double _xSpeed, double _ySpeed, double _rot, int RotationOffset) {
+    // Convert joystick values of +/- 1 to Meters/Sec and Rad/Sec
+    // Joystick Y/X axis are reveresed here. Joystick Y is pushing forward and back.
+    // The kinematics assumes X to be forward and back.
+    double xSpeed = _ySpeed * DRIVE.kMaxSpeedMetersPerSecond;
+    double ySpeed = -_xSpeed * DRIVE.kMaxSpeedMetersPerSecond;
+    double rot = -_rot * DRIVE.kMaxAngularRateRadPerSecond;
+    // rot = 0;
 
-  // Calculate the swerve module states
-  SwerveModuleState[] swerveModuleStates = DRIVE.kDriveKinematics.toSwerveModuleStates(true
-      ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, new Rotation2d(m_gyro.getRotation2d().getRadians() + (RotationOffset * (Math.PI / 180))))
-      : new ChassisSpeeds(xSpeed, ySpeed, rot));
-  // Normalize the wheel speeds
-  SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DRIVE.kMaxSpeedMetersPerSecond);
-  // Set the desired state of each swerve module with the new calculated states.
-  m_leftFront.setDesiredState(swerveModuleStates[0]);
-  m_rightFront.setDesiredState(swerveModuleStates[1]);
-  m_leftBack.setDesiredState(swerveModuleStates[2]);
-  m_rightBack.setDesiredState(swerveModuleStates[3]);
-}
+    // Calculate the swerve module states
+    SwerveModuleState[] swerveModuleStates = DRIVE.kDriveKinematics.toSwerveModuleStates(true
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot,
+            new Rotation2d(m_pigeonGyro.getRotation2d().getRadians() + (RotationOffset * (Math.PI / 180))))
+        : new ChassisSpeeds(xSpeed, ySpeed, rot));
+    // Normalize the wheel speeds
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DRIVE.kMaxSpeedMetersPerSecond);
+    // Set the desired state of each swerve module with the new calculated states.
+    m_leftFront.setDesiredState(swerveModuleStates[0]);
+    m_rightFront.setDesiredState(swerveModuleStates[1]);
+    m_leftBack.setDesiredState(swerveModuleStates[2]);
+    m_rightBack.setDesiredState(swerveModuleStates[3]);
+  }
 }
