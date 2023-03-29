@@ -184,19 +184,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     RobotContainer.intakeFastMode = false;
-
-    // sub_c.driveTeleop(driver.getLeftTriggerAxis(),driver.getLeftTriggerAxis(),
-    // driver.getRightX());
-
-    // if(driver.getBButton()){
-    // sub_c.wheelsFaceForward();
-    // }else{
-    // sub_c.driveTeleop(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX()
-    // * 0.25);
-    // }
-
-    // sub_c.driveTeleop(0, 0, 0.25);
-    // sub_c.driveTeleop(driver.getLeftY(), driver.getLeftX(), 0);
   }
 
   @Override
