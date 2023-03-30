@@ -24,12 +24,12 @@ public class HingeSubsystem extends SubsystemBase {
   private final double hingeInChangePoint = 10000;
   private final double hingeInLimit = 1000;
 
-  private final double hingeHighGoal = 45000;
+  private final double hingeHighGoal = 44500;
   
-  private final double hingeOutLimit = 55000;
+  private final double hingeOutLimit = 54000;
   private final double hingeOutChangePoint = 40000;
 
-  private final double hingeFloorLimit = 62000;
+  private final double hingeFloorLimit = 61000;
 
   /** Creates a new Hinge. */
   public HingeSubsystem() {
@@ -110,8 +110,7 @@ public class HingeSubsystem extends SubsystemBase {
     
     if(rtn > .4){
       rtn = .4;
-    }else if(rtn < -.7)
-    rtn = -.7;
+    }
 
     if(rtn < 0 && hingeMotor.getSelectedSensorPosition() >= hingeInLimit){
       hingeMotor.set(TalonFXControlMode.PercentOutput, rtn);
@@ -230,6 +229,12 @@ public class HingeSubsystem extends SubsystemBase {
     // SmartDashboard.putBoolean("Elevator goal reached", RobotContainer.elevator.goalReached());
     // SmartDashboard.putBoolean("Extender goal reached", RobotContainer.extender.goalReached());
     // SmartDashboard.putBoolean("Hinge goal reached", RobotContainer.hinge.goalReached());
+    SmartDashboard.putNumber("Hinge Motor Current", hingeMotor.getStatorCurrent());
+    SmartDashboard.putNumber("Hinge Motor Voltage", hingeMotor.getMotorOutputVoltage());
+  }
+
+  public boolean OutPowerPointReached() {
+    return hingeMotor.getSelectedSensorPosition() < hingeInLimit;
   }
 
 }

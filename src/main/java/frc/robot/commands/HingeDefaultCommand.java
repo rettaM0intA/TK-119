@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -18,7 +19,8 @@ public class HingeDefaultCommand extends CommandBase {
 
   HingePosition previousPosition = HingePosition.Retracted;
   
-  PIDController pid = new PIDController(0.0000125, 0.00000025, 0);
+  PIDController pid = new PIDController(0.0000128, 0.00000025, 0);
+  // ArmFeedforward arm = new ArmFeedforward(0, 0, 0);
 
   /** Creates a new HingeDefaultCommand. */
   public HingeDefaultCommand() {
@@ -42,17 +44,36 @@ public class HingeDefaultCommand extends CommandBase {
     previousPosition = RobotContainer.hingePos;
 
     if(RobotContainer.hingePos == HingePosition.Retracted){
-      if(speedUpTick < 2){
 
-        RobotContainer.hinge.Pivot(-.4);
-        speedUpTick++;
-
-      }else{
+      
+      if(speedUpTick > 20 || RobotContainer.hinge.OutPowerPointReached()){
         var d = pid.calculate(RobotContainer.hinge.hingeMotor.getSelectedSensorPosition(), 2000);
         
         RobotContainer.hinge.Pivot(d);
-        
       }
+      else if(!RobotContainer.hinge.OutPowerPointReached()){
+        if(speedUpTick < 2){
+
+          RobotContainer.hinge.Pivot(-.4);
+          speedUpTick++;
+  
+        }else if(speedUpTick < 8){
+          
+          RobotContainer.hinge.Pivot(-.55);
+          speedUpTick++;
+  
+        }else if(speedUpTick < 12){
+          
+          RobotContainer.hinge.Pivot(-.65);
+          speedUpTick++;
+          
+        }else{
+          
+          RobotContainer.hinge.Pivot(-.73);
+          speedUpTick++;
+
+        }
+      } 
       
 
       hold = false;
@@ -67,7 +88,7 @@ public class HingeDefaultCommand extends CommandBase {
       }
 
       //Reset the pid for retracting. Yes, this does something
-      pid = new PIDController(0.0000125, 0.00000025, 0);
+      pid = new PIDController(0.0000128, 0.00000025, 0);
     }
 
       // RobotContainer.hinge.Pivot(RobotContainer.driver.getRightTriggerAxis() - RobotContainer.driver.getLeftTriggerAxis());
